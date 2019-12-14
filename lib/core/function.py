@@ -109,7 +109,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
         dtype=np.float32
     )
     all_boxes = np.zeros((num_samples, 6))
-    image_path = []
+    image_id = []
     filenames = []
     imgnums = []
     idx = 0
@@ -152,6 +152,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
+
             _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
                                              target.cpu().numpy())
 
@@ -175,7 +176,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             all_boxes[idx:idx + num_images, 2:4] = s[:, 0:2]
             all_boxes[idx:idx + num_images, 4] = np.prod(s*200, 1)
             all_boxes[idx:idx + num_images, 5] = score
-            image_path.extend(meta['image'])
+            image_id.extend(meta['image_id'].cpu().numpy())
 
             idx += num_images
 
@@ -183,9 +184,8 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                 msg = 'Test: [{0}/{1}]\t' \
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t' \
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t' \
-                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                          i, len(val_loader), batch_time=batch_time,
-                          loss=losses, acc=acc)
+                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(i, len(val_loader), batch_time=batch_time,
+                                                                      loss=losses, acc=acc)
                 logger.info(msg)
 
                 prefix = '{}_{}'.format(
@@ -195,7 +195,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                                   prefix)
 
         name_values, perf_indicator = val_dataset.evaluate(
-            config, all_preds, output_dir, all_boxes, image_path,
+            config, all_preds, output_dir, all_boxes, image_id,
             filenames, imgnums
         )
 

@@ -20,6 +20,7 @@ from torch.utils.data import Dataset
 from utils.transforms import get_affine_transform
 from utils.transforms import affine_transform
 from utils.transforms import fliplr_joints
+from utils.transforms import PhotoMetricDistortion
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,10 @@ class JointsDataset(Dataset):
         self.num_joints_half_body = cfg.DATASET.NUM_JOINTS_HALF_BODY
         self.prob_half_body = cfg.DATASET.PROB_HALF_BODY
         self.color_rgb = cfg.DATASET.COLOR_RGB
+        self.photo_aug = cfg.DATASET.PHOTO_AUG
+        if self.photo_aug:
+            self.photo_aug_obj = PhotoMetricDistortion()
+        self.test_aug = cfg.DATASET.TEST_AUG
 
         self.target_type = cfg.MODEL.TARGET_TYPE
         self.image_size = np.array(cfg.MODEL.IMAGE_SIZE)
@@ -114,6 +119,7 @@ class JointsDataset(Dataset):
         db_rec = copy.deepcopy(self.db[idx])
 
         image_file = db_rec['image']
+        image_id = db_rec['image_id']
         filename = db_rec['filename'] if 'filename' in db_rec else ''
         imgnum = db_rec['imgnum'] if 'imgnum' in db_rec else ''
 
@@ -171,6 +177,17 @@ class JointsDataset(Dataset):
             (int(self.image_size[0]), int(self.image_size[1])),
             flags=cv2.INTER_LINEAR)
 
+        if self.photo_aug:
+            if self.is_train:
+                input = input.astype(np.float32)
+                input = self.photo_aug_obj(input)
+            else:
+                if self.test_aug:
+                    input = input.astype(np.float32)
+                    input = self.photo_aug_obj(input)
+                else:
+                    input = input.astype(np.float32)
+
         if self.transform:
             input = self.transform(input)
 
@@ -185,6 +202,7 @@ class JointsDataset(Dataset):
 
         meta = {
             'image': image_file,
+            'image_id': image_id,
             'filename': filename,
             'imgnum': imgnum,
             'joints': joints,

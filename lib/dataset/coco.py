@@ -87,20 +87,7 @@ class COCODataset(JointsDataset):
         self.num_images = len(self.image_set_index)
         logger.info('=> num_images: {}'.format(self.num_images))
 
-        self.num_joints = 17
-        self.flip_pairs = [[1, 2], [3, 4], [5, 6], [7, 8],
-                           [9, 10], [11, 12], [13, 14], [15, 16]]
-        self.parent_ids = None
-        self.upper_body_ids = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-        self.lower_body_ids = (11, 12, 13, 14, 15, 16)
-
-        self.joints_weight = np.array(
-            [
-                1., 1., 1., 1., 1., 1., 1., 1.2, 1.2,
-                1.5, 1.5, 1., 1., 1.2, 1.2, 1.5, 1.5
-            ],
-            dtype=np.float32
-        ).reshape((self.num_joints, 1))
+        self.num_joints = 4
 
         self.db = self._get_db()
 
@@ -111,12 +98,9 @@ class COCODataset(JointsDataset):
 
     def _get_ann_file_keypoint(self):
         """ self.root / annotations / person_keypoints_train2017.json """
-        prefix = 'person_keypoints' \
-            if 'test' not in self.image_set else 'image_info'
         return os.path.join(
             self.root,
-            'annotations',
-            prefix + '_' + self.image_set + '.json'
+            'annotations', self.image_set + '.json'
         )
 
     def _load_image_set_index(self):
@@ -154,6 +138,7 @@ class COCODataset(JointsDataset):
         im_ann = self.coco.loadImgs(index)[0]
         width = im_ann['width']
         height = im_ann['height']
+        file_name = im_ann["file_name"]
 
         annIds = self.coco.getAnnIds(imgIds=index, iscrowd=False)
         objs = self.coco.loadAnns(annIds)
@@ -196,12 +181,13 @@ class COCODataset(JointsDataset):
 
             center, scale = self._box2cs(obj['clean_bbox'][:4])
             rec.append({
-                'image': self.image_path_from_index(index),
+                'image': self.image_path_from_filename(file_name),
+                'image_id': index,
                 'center': center,
                 'scale': scale,
                 'joints_3d': joints_3d,
                 'joints_3d_vis': joints_3d_vis,
-                'filename': '',
+                'filename': self.image_path_from_filename(file_name),
                 'imgnum': 0,
             })
 
@@ -227,6 +213,13 @@ class COCODataset(JointsDataset):
             scale = scale * 1.25
 
         return center, scale
+
+    def image_path_from_filename(self, file_name):
+
+        image_path = os.path.join(
+            self.root, 'images', self.image_set, file_name)
+
+        return image_path
 
     def image_path_from_index(self, index):
         """ example: images / train2017 / 000000119993.jpg """
@@ -260,7 +253,10 @@ class COCODataset(JointsDataset):
             det_res = all_boxes[n_img]
             if det_res['category_id'] != 1:
                 continue
-            img_name = self.image_path_from_index(det_res['image_id'])
+            image_id = det_res['image_id']
+            im_ann = self.coco.loadImgs(image_id)[0]
+            file_name = im_ann["file_name"]
+            img_name = self.image_path_from_filename(file_name)
             box = det_res['bbox']
             score = det_res['score']
 
@@ -275,6 +271,7 @@ class COCODataset(JointsDataset):
                 (self.num_joints, 3), dtype=np.float)
             kpt_db.append({
                 'image': img_name,
+                'image_id': image_id,
                 'center': center,
                 'scale': scale,
                 'score': score,
@@ -286,7 +283,7 @@ class COCODataset(JointsDataset):
             self.image_thre, num_boxes))
         return kpt_db
 
-    def evaluate(self, cfg, preds, output_dir, all_boxes, img_path,
+    def evaluate(self, cfg, preds, output_dir, all_boxes, img_id,
                  *args, **kwargs):
         rank = cfg.RANK
 
@@ -311,7 +308,7 @@ class COCODataset(JointsDataset):
                 'scale': all_boxes[idx][2:4],
                 'area': all_boxes[idx][4],
                 'score': all_boxes[idx][5],
-                'image': int(img_path[idx][-16:-4])
+                'image': img_id[idx],
             })
         # image x person x (keypoints)
         kpts = defaultdict(list)
@@ -432,6 +429,7 @@ class COCODataset(JointsDataset):
         coco_dt = self.coco.loadRes(res_file)
         coco_eval = COCOeval(self.coco, coco_dt, 'keypoints')
         coco_eval.params.useSegm = None
+        coco_eval.params.kpt_oks_sigmas = np.array([.5, .5, .5, .5]) / 10.0
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
