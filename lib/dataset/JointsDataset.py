@@ -20,6 +20,7 @@ from torch.utils.data import Dataset
 from utils.transforms import get_affine_transform
 from utils.transforms import affine_transform
 from utils.transforms import fliplr_joints
+from utils.transforms import PhotoMetricDistortion
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,10 @@ class JointsDataset(Dataset):
         self.num_joints_half_body = cfg.DATASET.NUM_JOINTS_HALF_BODY
         self.prob_half_body = cfg.DATASET.PROB_HALF_BODY
         self.color_rgb = cfg.DATASET.COLOR_RGB
+        self.photo_aug = cfg.DATASET.PHOTO_AUG
+        if self.photo_aug:
+            self.photo_aug_obj = PhotoMetricDistortion()
+        self.test_aug = cfg.DATASET.TEST_AUG
 
         self.target_type = cfg.MODEL.TARGET_TYPE
         self.image_size = np.array(cfg.MODEL.IMAGE_SIZE)
@@ -114,6 +119,7 @@ class JointsDataset(Dataset):
         db_rec = copy.deepcopy(self.db[idx])
 
         image_file = db_rec['image']
+        image_id = db_rec['image_id']
         filename = db_rec['filename'] if 'filename' in db_rec else ''
         imgnum = db_rec['imgnum'] if 'imgnum' in db_rec else ''
 
@@ -151,6 +157,9 @@ class JointsDataset(Dataset):
 
                 if c_half_body is not None and s_half_body is not None:
                     c, s = c_half_body, s_half_body
+            if self.photo_aug:
+                data_numpy = data_numpy.astype(np.float32)
+                data_numpy = self.photo_aug_obj(data_numpy)
 
             sf = self.scale_factor
             rf = self.rotation_factor
@@ -163,6 +172,13 @@ class JointsDataset(Dataset):
                 joints, joints_vis = fliplr_joints(
                     joints, joints_vis, data_numpy.shape[1], self.flip_pairs)
                 c[0] = data_numpy.shape[1] - c[0] - 1
+        else:
+            if self.test_aug:
+                if self.photo_aug:
+                    data_numpy = data_numpy.astype(np.float32)
+                    data_numpy = self.photo_aug_obj(data_numpy)
+            elif self.photo_aug:
+                data_numpy = data_numpy.astype(np.float32)
 
         trans = get_affine_transform(c, s, r, self.image_size)
         input = cv2.warpAffine(
@@ -185,6 +201,7 @@ class JointsDataset(Dataset):
 
         meta = {
             'image': image_file,
+            'image_id': image_id,
             'filename': filename,
             'imgnum': imgnum,
             'joints': joints,

@@ -19,6 +19,7 @@ from core.evaluate import accuracy
 from core.inference import get_final_preds
 from utils.transforms import flip_back
 from utils.vis import save_debug_images
+#from sklearn.metrics import mean_absolute_error
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
     data_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
+    # l1_loss = AverageMeter()
 
     # switch to train mode
     model.train()
@@ -62,6 +64,12 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
 
         # measure accuracy and record loss
         losses.update(loss.item(), input.size(0))
+
+        #print(target.detach().cpu().numpy().shape)
+        #print(output.detach().cpu().numpy().shape)
+
+        #l1_loss_output = mean_absolute_error(target.detach().cpu().numpy(), output.detach().cpu().numpy())
+        #l1_loss.update(l1_loss_output, cnt)
 
         _, avg_acc, cnt, pred = accuracy(output.detach().cpu().numpy(),
                                          target.detach().cpu().numpy())
@@ -99,6 +107,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
     batch_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
+    #l1_loss = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
@@ -109,7 +118,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
         dtype=np.float32
     )
     all_boxes = np.zeros((num_samples, 6))
-    image_path = []
+    image_id = []
     filenames = []
     imgnums = []
     idx = 0
@@ -152,6 +161,10 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
+
+            # l1_loss_output = mean_absolute_error(target.cpu().numpy(), output.cpu().numpy())
+            # l1_loss.update(l1_loss_output, cnt)
+
             _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
                                              target.cpu().numpy())
 
@@ -175,7 +188,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             all_boxes[idx:idx + num_images, 2:4] = s[:, 0:2]
             all_boxes[idx:idx + num_images, 4] = np.prod(s*200, 1)
             all_boxes[idx:idx + num_images, 5] = score
-            image_path.extend(meta['image'])
+            image_id.extend(meta['image_id'].cpu().numpy())
 
             idx += num_images
 
@@ -183,9 +196,8 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                 msg = 'Test: [{0}/{1}]\t' \
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t' \
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t' \
-                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                          i, len(val_loader), batch_time=batch_time,
-                          loss=losses, acc=acc)
+                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(i, len(val_loader), batch_time=batch_time,
+                                                                      loss=losses, acc=acc)
                 logger.info(msg)
 
                 prefix = '{}_{}'.format(
@@ -195,7 +207,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                                   prefix)
 
         name_values, perf_indicator = val_dataset.evaluate(
-            config, all_preds, output_dir, all_boxes, image_path,
+            config, all_preds, output_dir, all_boxes, image_id,
             filenames, imgnums
         )
 
