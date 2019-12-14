@@ -32,59 +32,22 @@ class ColorStyle:
         
 # Xiaochu Style
 # (R,G,B)
-color1 = [(179,0,0),(228,26,28),(255,255,51),
-    (49,163,84), (0,109,45), (255,255,51),
-    (240,2,127),(240,2,127),(240,2,127), (240,2,127), (240,2,127), 
-    (217,95,14), (254,153,41),(255,255,51),
-    (44,127,184),(0,0,255)]
+color1 = [(179,0,0),(228,26,28),(255,255,51), (49,163,84)]
 
-link_pairs1 = [
-        [15, 13], [13, 11], [11, 5], 
-        [12, 14], [14, 16], [12, 6], 
-        [3, 1],[1, 2],[1, 0],[0, 2],[2,4],
-        [9, 7], [7,5], [5, 6],
-        [6, 8], [8, 10],
-        ]
+link_pairs1 = [[0,1], [1,2], [2,3], [3,0]]
 
-point_color1 = [(240,2,127),(240,2,127),(240,2,127), 
-            (240,2,127), (240,2,127), 
-            (255,255,51),(255,255,51),
-            (254,153,41),(44,127,184),
-            (217,95,14),(0,0,255),
-            (255,255,51),(255,255,51),(228,26,28),
-            (49,163,84),(252,176,243),(0,176,240),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142)]
+point_color1 = [(240,2,127),(240,2,127),(240,2,127),(240,2,127)]
 
 xiaochu_style = ColorStyle(color1, link_pairs1, point_color1)
 
 
 # Chunhua Style
 # (R,G,B)
-color2 = [(252,176,243),(252,176,243),(252,176,243),
-    (0,176,240), (0,176,240), (0,176,240),
-    (240,2,127),(240,2,127),(240,2,127), (240,2,127), (240,2,127), 
-    (255,255,0), (255,255,0),(169, 209, 142),
-    (169, 209, 142),(169, 209, 142)]
+color2 = [(252,176,243),(252,176,243),(252,176,243),(0,176,240)]
 
-link_pairs2 = [
-        [15, 13], [13, 11], [11, 5], 
-        [12, 14], [14, 16], [12, 6], 
-        [3, 1],[1, 2],[1, 0],[0, 2],[2,4],
-        [9, 7], [7,5], [5, 6], [6, 8], [8, 10],
-        ]
+link_pairs2 = [[0,1], [1,2], [2,3], [3,0]]
 
-point_color2 = [(240,2,127),(240,2,127),(240,2,127), 
-            (240,2,127), (240,2,127), 
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (252,176,243),(0,176,240),(252,176,243),
-            (0,176,240),(252,176,243),(0,176,240),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142)]
+point_color2 = [(240,2,127),(240,2,127),(240,2,127),(240,2,127)]
 
 chunhua_style = ColorStyle(color2, link_pairs2, point_color2)
 
@@ -92,21 +55,21 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Visualize COCO predictions')
     # general
     parser.add_argument('--image-path',
-                        help='Path of COCO val images',
+                        help='Path of orig val images',
                         type=str,
-                        default='data/coco/images/val2017/'
+                        default='data/lvt/images/val/'
                         )
 
     parser.add_argument('--gt-anno',
-                        help='Path of COCO val annotation',
+                        help='Path of orig val annotation',
                         type=str,
-                        default='data/coco/annotations/person_keypoints_val2017.json'
+                        default='data/lvt/annotations/val.json'
                         )
 
     parser.add_argument('--save-path',
                         help="Path to save the visualizations",
                         type=str,
-                        default='visualization/coco/')
+                        default='visualization/lvt/')
 
     parser.add_argument('--prediction',
                         help="Prediction file to visualize",
@@ -134,7 +97,7 @@ def map_joint_dict(joints):
     return joints_dict
 
 def plot(data, gt_file, img_path, save_path, 
-         link_pairs, ring_color, save=True):
+         link_pairs, ring_color, iou_thresh=0.0, save=True):
     
     # joints
     coco = COCO(gt_file)
@@ -153,7 +116,8 @@ def plot(data, gt_file, img_path, save_path,
     # loop through images, area range, max detection number
     catIds = p.catIds if p.useCats else [-1]
     threshold = 0.3
-    joint_thres = 0.2
+    #joint_thres = 0.2
+    joint_thres = -1
     for catId in catIds:
         for imgId in p.imgIds[:5000]:
             # dimention here should be Nxm
@@ -168,10 +132,13 @@ def plot(data, gt_file, img_path, save_path,
             
             sum_score = 0
             num_box = 0
-            img_name = str(imgId).zfill(12)
+            #img_name = str(imgId).zfill(12)
+            im_ann = coco.loadImgs([imgId])[0]
+            img_name = im_ann["file_name"]
             
             # Read Images
-            img_file = img_path + img_name + '.jpg'
+            img_file = img_path + img_name
+            print(img_file)
             data_numpy = cv2.imread(img_file, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
             h = data_numpy.shape[0]
             w = data_numpy.shape[1]
@@ -208,7 +175,7 @@ def plot(data, gt_file, img_path, save_path,
                     iou = ol_area / (sum_area + np.spacing(1))                    
                     score = dt['score']
                     
-                    if iou < 0.1 or score < threshold:
+                    if iou < iou_thresh or score < threshold:
                         continue
                     else:
                         print('iou: ', iou)
@@ -217,7 +184,7 @@ def plot(data, gt_file, img_path, save_path,
                         ref = min(dt_w, dt_h)
                         num_box += 1
                         sum_score += dt['score']
-                        dt_joints = np.array(dt['keypoints']).reshape(17,-1)
+                        dt_joints = np.array(dt['keypoints']).reshape(4,-1)
                         joints_dict = map_joint_dict(dt_joints)
                         
                         # stick 
@@ -233,6 +200,8 @@ def plot(data, gt_file, img_path, save_path,
                                 lw = 1
                             else:
                                 lw = ref / 100.
+                            # scale down thickness
+                            lw = lw / 10.0
                             line = mlines.Line2D(
                                     np.array([joints_dict[link_pair[0]][0],
                                               joints_dict[link_pair[1]][0]]),
