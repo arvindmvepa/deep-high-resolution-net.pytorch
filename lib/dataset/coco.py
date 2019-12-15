@@ -441,6 +441,7 @@ class COCODataset(JointsDataset):
         coco_dt = self.coco.loadRes(res_file)
         coco_eval = COCOeval(self.coco, coco_dt, 'keypoints')
         coco_eval.params.useSegm = None
+        coco_eval.kpt_oks_sigmas = np.array([.5, .5, .5, .5]) / 10.0
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
