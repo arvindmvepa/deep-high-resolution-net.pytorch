@@ -20,7 +20,7 @@ DATASET:
   ROOT: 'data/orig/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
-  TEST_SET: 'val'
+  TEST_SET: 'train'
   TRAIN_SET: 'train'
 MODEL:
   INIT_WEIGHTS: true
