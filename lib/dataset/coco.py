@@ -202,7 +202,7 @@ class COCODataset(JointsDataset):
                 'scale': scale,
                 'joints_3d': joints_3d,
                 'joints_3d_vis': joints_3d_vis,
-                'filename': '',
+                'filename': self.image_path_from_filename(file_name),
                 'imgnum': 0,
             })
 
@@ -319,7 +319,7 @@ class COCODataset(JointsDataset):
                 'scale': all_boxes[idx][2:4],
                 'area': all_boxes[idx][4],
                 'score': all_boxes[idx][5],
-                'image': int(img_path[idx][-16:-4])
+                'image': img_path,
             })
         # image x person x (keypoints)
         kpts = defaultdict(list)
