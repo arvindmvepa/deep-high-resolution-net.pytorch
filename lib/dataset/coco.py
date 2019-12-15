@@ -59,9 +59,7 @@ class COCODataset(JointsDataset):
         self.oks_thre = cfg.TEST.OKS_THRE
         self.in_vis_thre = cfg.TEST.IN_VIS_THRE
         self.bbox_file = cfg.TEST.COCO_BBOX_FILE
-        print('DEBUG: TEST USE GT BOX: {}'.format(cfg.TEST.USE_GT_BBOX))
         self.use_gt_bbox = cfg.TEST.USE_GT_BBOX
-        print('DEBUG: USE GT BOX: {}'.format(self.use_gt_bbox))
         self.image_width = cfg.MODEL.IMAGE_SIZE[0]
         self.image_height = cfg.MODEL.IMAGE_SIZE[1]
         self.aspect_ratio = self.image_width * 1.0 / self.image_height
