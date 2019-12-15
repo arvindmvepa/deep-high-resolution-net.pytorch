@@ -198,6 +198,7 @@ class COCODataset(JointsDataset):
             center, scale = self._box2cs(obj['clean_bbox'][:4])
             rec.append({
                 'image': self.image_path_from_filename(file_name),
+                'image_id': index,
                 'center': center,
                 'scale': scale,
                 'joints_3d': joints_3d,
@@ -294,7 +295,7 @@ class COCODataset(JointsDataset):
             self.image_thre, num_boxes))
         return kpt_db
 
-    def evaluate(self, cfg, preds, output_dir, all_boxes, img_path,
+    def evaluate(self, cfg, preds, output_dir, all_boxes, img_id,
                  *args, **kwargs):
         rank = cfg.RANK
 
@@ -319,7 +320,7 @@ class COCODataset(JointsDataset):
                 'scale': all_boxes[idx][2:4],
                 'area': all_boxes[idx][4],
                 'score': all_boxes[idx][5],
-                'image': img_path[idx],
+                'image': img_id[idx],
             })
         # image x person x (keypoints)
         kpts = defaultdict(list)

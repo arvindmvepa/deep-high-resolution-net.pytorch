@@ -114,6 +114,7 @@ class JointsDataset(Dataset):
         db_rec = copy.deepcopy(self.db[idx])
 
         image_file = db_rec['image']
+        image_id = db_rec['image_id']
         filename = db_rec['filename'] if 'filename' in db_rec else ''
         imgnum = db_rec['imgnum'] if 'imgnum' in db_rec else ''
 
@@ -185,6 +186,7 @@ class JointsDataset(Dataset):
 
         meta = {
             'image': image_file,
+            'image_id': image_id,
             'filename': filename,
             'imgnum': imgnum,
             'joints': joints,
