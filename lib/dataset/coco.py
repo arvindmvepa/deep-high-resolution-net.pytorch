@@ -323,6 +323,8 @@ class COCODataset(JointsDataset):
             })
         # image x person x (keypoints)
         kpts = defaultdict(list)
+        print("debug")
+        print(kpt['image'])
         for kpt in _kpts:
             kpts[kpt['image']].append(kpt)
 
