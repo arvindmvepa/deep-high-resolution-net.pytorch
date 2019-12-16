@@ -131,7 +131,9 @@ def plot(data, gt_file, img_path, save_path,
             
             sum_score = 0
             num_box = 0
-            img_name = str(imgId).zfill(12)
+            #img_name = str(imgId).zfill(12)
+            im_ann = coco.loadImgs(imgId)[0]
+            img_name = im_ann["file_name"]
             
             # Read Images
             img_file = img_path + img_name + '.jpg'
