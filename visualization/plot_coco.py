@@ -32,59 +32,22 @@ class ColorStyle:
         
 # Xiaochu Style
 # (R,G,B)
-color1 = [(179,0,0),(228,26,28),(255,255,51),
-    (49,163,84), (0,109,45), (255,255,51),
-    (240,2,127),(240,2,127),(240,2,127), (240,2,127), (240,2,127), 
-    (217,95,14), (254,153,41),(255,255,51),
-    (44,127,184),(0,0,255)]
+color1 = [(179,0,0),(228,26,28),(255,255,51), (49,163,84)]
 
-link_pairs1 = [
-        [15, 13], [13, 11], [11, 5], 
-        [12, 14], [14, 16], [12, 6], 
-        [3, 1],[1, 2],[1, 0],[0, 2],[2,4],
-        [9, 7], [7,5], [5, 6],
-        [6, 8], [8, 10],
-        ]
+link_pairs1 = [[1,2], [2,3], [3,4], [4,1]]
 
-point_color1 = [(240,2,127),(240,2,127),(240,2,127), 
-            (240,2,127), (240,2,127), 
-            (255,255,51),(255,255,51),
-            (254,153,41),(44,127,184),
-            (217,95,14),(0,0,255),
-            (255,255,51),(255,255,51),(228,26,28),
-            (49,163,84),(252,176,243),(0,176,240),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142)]
+point_color1 = [(240,2,127),(240,2,127),(240,2,127),(240,2,127)]
 
 xiaochu_style = ColorStyle(color1, link_pairs1, point_color1)
 
 
 # Chunhua Style
 # (R,G,B)
-color2 = [(252,176,243),(252,176,243),(252,176,243),
-    (0,176,240), (0,176,240), (0,176,240),
-    (240,2,127),(240,2,127),(240,2,127), (240,2,127), (240,2,127), 
-    (255,255,0), (255,255,0),(169, 209, 142),
-    (169, 209, 142),(169, 209, 142)]
+color2 = [(252,176,243),(252,176,243),(252,176,243),(0,176,240)]
 
-link_pairs2 = [
-        [15, 13], [13, 11], [11, 5], 
-        [12, 14], [14, 16], [12, 6], 
-        [3, 1],[1, 2],[1, 0],[0, 2],[2,4],
-        [9, 7], [7,5], [5, 6], [6, 8], [8, 10],
-        ]
+link_pairs2 = [[1,2], [2,3], [3,4], [4,1]]
 
-point_color2 = [(240,2,127),(240,2,127),(240,2,127), 
-            (240,2,127), (240,2,127), 
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (252,176,243),(0,176,240),(252,176,243),
-            (0,176,240),(252,176,243),(0,176,240),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142),
-            (255,255,0),(169, 209, 142)]
+point_color2 = [(240,2,127),(240,2,127),(240,2,127),(240,2,127)]
 
 chunhua_style = ColorStyle(color2, link_pairs2, point_color2)
 
@@ -92,21 +55,21 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Visualize COCO predictions')
     # general
     parser.add_argument('--image-path',
-                        help='Path of COCO val images',
+                        help='Path of orig val images',
                         type=str,
-                        default='data/coco/images/val2017/'
+                        default='data/orig/images/val/'
                         )
 
     parser.add_argument('--gt-anno',
-                        help='Path of COCO val annotation',
+                        help='Path of orig val annotation',
                         type=str,
-                        default='data/coco/annotations/person_keypoints_val2017.json'
+                        default='data/orig/annotations/val.json'
                         )
 
     parser.add_argument('--save-path',
                         help="Path to save the visualizations",
                         type=str,
-                        default='visualization/coco/')
+                        default='visualization/orig/')
 
     parser.add_argument('--prediction',
                         help="Prediction file to visualize",
@@ -217,7 +180,7 @@ def plot(data, gt_file, img_path, save_path,
                         ref = min(dt_w, dt_h)
                         num_box += 1
                         sum_score += dt['score']
-                        dt_joints = np.array(dt['keypoints']).reshape(17,-1)
+                        dt_joints = np.array(dt['keypoints']).reshape(4,-1)
                         joints_dict = map_joint_dict(dt_joints)
                         
                         # stick 
