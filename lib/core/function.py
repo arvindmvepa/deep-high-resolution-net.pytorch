@@ -66,7 +66,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
         losses.update(loss.item(), input.size(0))
 
         print(target.detach().cpu().numpy().shape)
-        print(output.detach().numpy().shape)
+        print(output.detach().cpu().numpy().shape)
 
         l1_loss_output = mean_absolute_error(target.detach().cpu().numpy(), output.detach().cpu().numpy())
         l1_loss.update(l1_loss_output, cnt)
