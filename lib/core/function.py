@@ -99,6 +99,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
     batch_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
+    l1_loss = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
@@ -152,6 +153,12 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
+
+            l1_loss_func = torch.nn.L1Loss()
+            l1_loss_output = l1_loss_func(output.cpu().numpy(), target.cpu().numpy())
+
+            l1_loss.update(l1_loss_output, cnt)
+
             _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
                                              target.cpu().numpy())
 
@@ -183,9 +190,9 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                 msg = 'Test: [{0}/{1}]\t' \
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t' \
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t' \
-                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
-                          i, len(val_loader), batch_time=batch_time,
-                          loss=losses, acc=acc)
+                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})\t' \
+                      'L1 Loss {l1_loss.val:.3f} ({l1_loss.avg:.3f})'.format(i, len(val_loader), batch_time=batch_time,
+                                                                             loss=losses, acc=acc, l1_loss=l1_loss)
                 logger.info(msg)
 
                 prefix = '{}_{}'.format(
