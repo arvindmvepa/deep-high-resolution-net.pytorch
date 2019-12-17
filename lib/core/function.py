@@ -19,6 +19,7 @@ from core.evaluate import accuracy
 from core.inference import get_final_preds
 from utils.transforms import flip_back
 from utils.vis import save_debug_images
+from sklearn.metrics import mean_absolute_error
 
 
 logger = logging.getLogger(__name__)
@@ -154,8 +155,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
 
-            l1_loss_func = torch.nn.L1Loss()
-            l1_loss_output = l1_loss_func(output.cpu().numpy(), target.cpu().numpy())
+            l1_loss_output = mean_absolute_error(target.cpu().numpy(), output.cpu().numpy())
 
             l1_loss.update(l1_loss_output, cnt)
 
