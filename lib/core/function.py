@@ -65,10 +65,10 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
         # measure accuracy and record loss
         losses.update(loss.item(), input.size(0))
 
-        print(target.cpu().numpy().shape)
-        print(output.cpu().numpy().shape)
+        print(target.detach().cpu().numpy().shape)
+        print(output.detach().numpy().shape)
 
-        l1_loss_output = mean_absolute_error(target.cpu().numpy(), output.cpu().numpy())
+        l1_loss_output = mean_absolute_error(target.detach().cpu().numpy(), output.detach().cpu().numpy())
         l1_loss.update(l1_loss_output, cnt)
 
         _, avg_acc, cnt, pred = accuracy(output.detach().cpu().numpy(),
