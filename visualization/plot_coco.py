@@ -57,19 +57,19 @@ def parse_args():
     parser.add_argument('--image-path',
                         help='Path of orig val images',
                         type=str,
-                        default='data/orig/images/val/'
+                        default='data/lvt/images/val/'
                         )
 
     parser.add_argument('--gt-anno',
                         help='Path of orig val annotation',
                         type=str,
-                        default='data/orig/annotations/val.json'
+                        default='data/lvt/annotations/val.json'
                         )
 
     parser.add_argument('--save-path',
                         help="Path to save the visualizations",
                         type=str,
-                        default='visualization/orig/')
+                        default='visualization/lvr/')
 
     parser.add_argument('--prediction',
                         help="Prediction file to visualize",
