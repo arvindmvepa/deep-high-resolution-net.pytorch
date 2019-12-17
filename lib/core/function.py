@@ -31,6 +31,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
     data_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
+    l1_loss = AverageMeter()
 
     # switch to train mode
     model.train()
@@ -64,6 +65,12 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
         # measure accuracy and record loss
         losses.update(loss.item(), input.size(0))
 
+        print(target.cpu().numpy().shape)
+        print(output.cpu().numpy().shape)
+
+        l1_loss_output = mean_absolute_error(target.cpu().numpy(), output.cpu().numpy())
+        l1_loss.update(l1_loss_output, cnt)
+
         _, avg_acc, cnt, pred = accuracy(output.detach().cpu().numpy(),
                                          target.detach().cpu().numpy())
         acc.update(avg_acc, cnt)
@@ -78,10 +85,11 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
                   'Speed {speed:.1f} samples/s\t' \
                   'Data {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
                   'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
-                  'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
+                  'Accuracy {acc.val:.3f} ({acc.avg:.3f})\t' \
+                  'L1 Loss {l1_loss.val:.3f} ({l1_loss.avg:.3f})'.format(
                       epoch, i, len(train_loader), batch_time=batch_time,
                       speed=input.size(0)/batch_time.val,
-                      data_time=data_time, loss=losses, acc=acc)
+                      data_time=data_time, loss=losses, acc=acc, l1_loss=l1_loss)
             logger.info(msg)
 
             writer = writer_dict['writer']
@@ -156,7 +164,6 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             losses.update(loss.item(), num_images)
 
             l1_loss_output = mean_absolute_error(target.cpu().numpy(), output.cpu().numpy())
-
             l1_loss.update(l1_loss_output, cnt)
 
             _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
