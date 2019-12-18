@@ -20,8 +20,8 @@ DATASET:
   ROOT: 'data/lvt/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
-  TEST_SET: 'test'
-  TRAIN_SET: 'val'
+  TEST_SET: 'val'
+  TRAIN_SET: 'train'
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet
