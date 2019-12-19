@@ -269,7 +269,10 @@ class COCODataset(JointsDataset):
             det_res = all_boxes[n_img]
             if det_res['category_id'] != 1:
                 continue
-            img_name = self.image_path_from_index(det_res['image_id'])
+            image_id = det_res['image_id']
+            im_ann = self.coco.loadImgs(image_id)[0]
+            file_name = im_ann["file_name"]
+            img_name = self.image_path_from_filename(file_name)
             box = det_res['bbox']
             score = det_res['score']
 
@@ -284,6 +287,7 @@ class COCODataset(JointsDataset):
                 (self.num_joints, 3), dtype=np.float)
             kpt_db.append({
                 'image': img_name,
+                'image_id': image_id,
                 'center': center,
                 'scale': scale,
                 'score': score,
