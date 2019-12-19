@@ -174,7 +174,7 @@ def plot(data, gt_file, img_path, save_path,
                     iou = ol_area / (sum_area + np.spacing(1))                    
                     score = dt['score']
                     
-                    if False and (iou < 0.1 or score < threshold):
+                    if iou < 0.1 or score < threshold:
                         continue
                     else:
                         print('iou: ', iou)
