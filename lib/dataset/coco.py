@@ -161,7 +161,6 @@ class COCODataset(JointsDataset):
 
         # sanitize bboxes
         valid_objs = []
-        print(objs)
         for obj in objs:
             x, y, w, h = obj['bbox']
             x1 = np.max((0, x))
@@ -171,7 +170,7 @@ class COCODataset(JointsDataset):
             if obj['area'] > 0 and x2 >= x1 and y2 >= y1:
                 obj['clean_bbox'] = [x1, y1, x2-x1, y2-y1]
                 valid_objs.append(obj)
-                print("not valid")
+                print("valid")
         objs = valid_objs
 
         rec = []
