@@ -161,6 +161,7 @@ class COCODataset(JointsDataset):
 
         # sanitize bboxes
         valid_objs = []
+        print(objs)
         for obj in objs:
             x, y, w, h = obj['bbox']
             x1 = np.max((0, x))
@@ -170,16 +171,19 @@ class COCODataset(JointsDataset):
             if obj['area'] > 0 and x2 >= x1 and y2 >= y1:
                 obj['clean_bbox'] = [x1, y1, x2-x1, y2-y1]
                 valid_objs.append(obj)
+                print("not valid")
         objs = valid_objs
 
         rec = []
         for obj in objs:
             cls = self._coco_ind_to_class_ind[obj['category_id']]
             if cls != 1:
+                print('not valid class')
                 continue
 
             # ignore objs without keypoints annotation
             if max(obj['keypoints']) == 0:
+                print('no kps')
                 continue
 
             joints_3d = np.zeros((self.num_joints, 3), dtype=np.float)
