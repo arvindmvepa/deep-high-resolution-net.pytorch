@@ -97,7 +97,7 @@ def map_joint_dict(joints):
     return joints_dict
 
 def plot(data, gt_file, img_path, save_path, 
-         link_pairs, ring_color, save=True):
+         link_pairs, ring_color, iou_thresh=0.0, save=True):
     
     # joints
     coco = COCO(gt_file)
@@ -174,7 +174,7 @@ def plot(data, gt_file, img_path, save_path,
                     iou = ol_area / (sum_area + np.spacing(1))                    
                     score = dt['score']
                     
-                    if iou < 0.1 or score < threshold:
+                    if iou < iou_thresh or score < threshold:
                         continue
                     else:
                         print('iou: ', iou)
