@@ -191,11 +191,13 @@ def plot(data, gt_file, img_path, save_path,
                         for k, link_pair in enumerate(link_pairs):
                             if link_pair[0] in joints_dict \
                             and link_pair[1] in joints_dict:
+                                """
                                 if dt_joints[link_pair[0],2] < joint_thres \
                                     or dt_joints[link_pair[1],2] < joint_thres \
                                     or vg[link_pair[0]] == 0 \
                                     or vg[link_pair[1]] == 0:
                                     continue
+                                """
                             if k in range(6,11):
                                 lw = 1
                             else:
