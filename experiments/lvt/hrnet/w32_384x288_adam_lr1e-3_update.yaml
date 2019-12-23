@@ -21,7 +21,7 @@ DATASET:
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
   TEST_SET: 'test'
-  TRAIN_SET: 'train'
+  TRAIN_SET: 'train1'
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet
