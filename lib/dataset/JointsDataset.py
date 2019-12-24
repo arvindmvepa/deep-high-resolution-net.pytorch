@@ -148,7 +148,7 @@ class JointsDataset(Dataset):
         score = db_rec['score'] if 'score' in db_rec else 1
         r = 0
 
-        if self.is_train or self.test_aug:
+        if self.is_train:
             if (np.sum(joints_vis[:, 0]) > self.num_joints_half_body
                 and np.random.rand() < self.prob_half_body):
                 c_half_body, s_half_body = self.half_body_transform(
@@ -173,7 +173,19 @@ class JointsDataset(Dataset):
                     joints, joints_vis, data_numpy.shape[1], self.flip_pairs)
                 c[0] = data_numpy.shape[1] - c[0] - 1
         else:
-            if self.photo_aug:
+            if self.test_aug:
+                if self.photo_aug:
+                    data_numpy = data_numpy.astype(np.float32)
+                    data_numpy = self.photo_aug_obj(data_numpy)
+                sf = self.scale_factor
+                s = s * np.clip(np.random.randn() * sf + 1, 1 - sf, 1 + sf)
+                r = 0
+                if self.flip and random.random() <= 0.5:
+                    data_numpy = data_numpy[:, ::-1, :]
+                    joints, joints_vis = fliplr_joints(
+                        joints, joints_vis, data_numpy.shape[1], self.flip_pairs)
+                    c[0] = data_numpy.shape[1] - c[0] - 1
+            elif self.photo_aug:
                 data_numpy = data_numpy.astype(np.float32)
 
         trans = get_affine_transform(c, s, r, self.image_size)
