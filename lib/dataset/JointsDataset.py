@@ -171,6 +171,9 @@ class JointsDataset(Dataset):
                 joints, joints_vis = fliplr_joints(
                     joints, joints_vis, data_numpy.shape[1], self.flip_pairs)
                 c[0] = data_numpy.shape[1] - c[0] - 1
+        else:
+            if self.photo_aug:
+                data_numpy = data_numpy.astype(np.float32)
 
         trans = get_affine_transform(c, s, r, self.image_size)
         input = cv2.warpAffine(
