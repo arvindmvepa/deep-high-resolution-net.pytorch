@@ -116,8 +116,8 @@ def plot(data, gt_file, img_path, save_path,
     # loop through images, area range, max detection number
     catIds = p.catIds if p.useCats else [-1]
     threshold = 0.3
-    joint_thres = 0.2
-    #joint_thres = -1
+    #joint_thres = 0.2
+    joint_thres = -1
     for catId in catIds:
         for imgId in p.imgIds[:5000]:
             # dimention here should be Nxm
