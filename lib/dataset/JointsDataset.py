@@ -177,11 +177,6 @@ class JointsDataset(Dataset):
                 if self.photo_aug:
                     data_numpy = data_numpy.astype(np.float32)
                     data_numpy = self.photo_aug_obj(data_numpy)
-                if self.flip and random.random() <= 0.5:
-                    data_numpy = data_numpy[:, ::-1, :]
-                    joints, joints_vis = fliplr_joints(
-                        joints, joints_vis, data_numpy.shape[1], self.flip_pairs)
-                    c[0] = data_numpy.shape[1] - c[0] - 1
             elif self.photo_aug:
                 data_numpy = data_numpy.astype(np.float32)
 
