@@ -49,6 +49,7 @@ class JointsDataset(Dataset):
         self.photo_aug = cfg.DATASET.PHOTO_AUG
         if self.photo_aug:
             self.photo_aug_obj = PhotoMetricDistortion()
+        self.test_aug = cfg.DATASET.TEST_AUG
 
         self.target_type = cfg.MODEL.TARGET_TYPE
         self.image_size = np.array(cfg.MODEL.IMAGE_SIZE)
@@ -147,7 +148,7 @@ class JointsDataset(Dataset):
         score = db_rec['score'] if 'score' in db_rec else 1
         r = 0
 
-        if self.is_train:
+        if self.is_train or self.test_aug:
             if (np.sum(joints_vis[:, 0]) > self.num_joints_half_body
                 and np.random.rand() < self.prob_half_body):
                 c_half_body, s_half_body = self.half_body_transform(

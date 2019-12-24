@@ -21,6 +21,7 @@ DATASET:
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
   PHOTO_AUG: true
+  TEST_AUG: true
   TEST_SET: 'val'
   TRAIN_SET: 'train'
 MODEL:
