@@ -158,7 +158,7 @@ class JointsDataset(Dataset):
                     c, s = c_half_body, s_half_body
             if self.photo_aug:
                 data_numpy = data_numpy.astype(np.float32)
-                #data_numpy = self.photo_aug_obj(data_numpy)
+                data_numpy = self.photo_aug_obj(data_numpy)
 
             sf = self.scale_factor
             rf = self.rotation_factor
