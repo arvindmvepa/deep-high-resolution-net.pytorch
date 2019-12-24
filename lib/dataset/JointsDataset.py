@@ -20,6 +20,7 @@ from torch.utils.data import Dataset
 from utils.transforms import get_affine_transform
 from utils.transforms import affine_transform
 from utils.transforms import fliplr_joints
+from utils.transforms import PhotoMetricDistortion
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,9 @@ class JointsDataset(Dataset):
         self.num_joints_half_body = cfg.DATASET.NUM_JOINTS_HALF_BODY
         self.prob_half_body = cfg.DATASET.PROB_HALF_BODY
         self.color_rgb = cfg.DATASET.COLOR_RGB
+        self.photo_aug = cfg.DATASET.PHOTO_AUG
+        if self.photo_aug:
+            self.photo_aug_obj = PhotoMetricDistortion()
 
         self.target_type = cfg.MODEL.TARGET_TYPE
         self.image_size = np.array(cfg.MODEL.IMAGE_SIZE)
@@ -152,6 +156,8 @@ class JointsDataset(Dataset):
 
                 if c_half_body is not None and s_half_body is not None:
                     c, s = c_half_body, s_half_body
+            if self.photo_aug:
+                data_numpy = self.photo_aug_obj(data_numpy)
 
             sf = self.scale_factor
             rf = self.rotation_factor
