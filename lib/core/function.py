@@ -19,7 +19,6 @@ from core.evaluate import accuracy
 from core.inference import get_final_preds
 from utils.transforms import flip_back
 from utils.vis import save_debug_images
-#from sklearn.metrics import mean_absolute_error
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,6 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
     data_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
-    # l1_loss = AverageMeter()
 
     # switch to train mode
     model.train()
@@ -64,12 +62,6 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
 
         # measure accuracy and record loss
         losses.update(loss.item(), input.size(0))
-
-        #print(target.detach().cpu().numpy().shape)
-        #print(output.detach().cpu().numpy().shape)
-
-        #l1_loss_output = mean_absolute_error(target.detach().cpu().numpy(), output.detach().cpu().numpy())
-        #l1_loss.update(l1_loss_output, cnt)
 
         _, avg_acc, cnt, pred = accuracy(output.detach().cpu().numpy(),
                                          target.detach().cpu().numpy())
@@ -107,7 +99,6 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
     batch_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
-    #l1_loss = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
