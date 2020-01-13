@@ -21,7 +21,7 @@ DATASET:
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
   PHOTO_AUG: true
-  TEST_SET: 'test'
+  TEST_SET: 'val'
   TRAIN_SET: 'train'
 MODEL:
   INIT_WEIGHTS: true
@@ -109,7 +109,7 @@ TRAIN:
   NESTEROV: false
 TEST:
   BATCH_SIZE_PER_GPU: 32
-  COCO_BBOX_FILE: 'data/lvt/detection_results/test_detections.json'
+  COCO_BBOX_FILE: 'data/american-eagle/detection_results/val_detections.json'
   BBOX_THRE: 1.0
   IMAGE_THRE: 0.0
   IN_VIS_THRE: 0.2
